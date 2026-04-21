@@ -27,8 +27,14 @@ func main() {
 			encodeCmd := flag.NewFlagSet("encode", flag.ExitOnError)
 			encodeImage := encodeCmd.String("image", "", "input image to encode a message into")
 			encodeMessage := encodeCmd.String("message", "", "the message to encode")
-			encodeOutput := encodeCmd.String("output", "out.png", "output file")
+			encodeOutput := encodeCmd.String("output", "out.png", "output file (RGBA format)")
 			encodeCmd.Parse(os.Args[2:])
+
+			// input validation
+			if len(*encodeImage) == 0 || len(*encodeMessage) == 0 {
+				encodeCmd.Usage()
+				os.Exit(0)
+			}
 
 			rgba, bits := encode(getImage(encodeImage), encodeMessage)
 			fmt.Printf("Encoded the message as %d bits into the image\n", bits)
@@ -39,6 +45,12 @@ func main() {
 			decodeImage := decodeCmd.String("image", "", "input image to decode a message from")
 			decodeLength := decodeCmd.Int("bits", 0, "the amount of bits to decode (divisible by 8)")
 			decodeCmd.Parse(os.Args[2:])
+
+			// input validation
+			if len(*decodeImage) == 0 || *decodeLength == 0 {
+				decodeCmd.Usage()
+				os.Exit(0)
+			}
 
 			message := decode(getImage(decodeImage), *decodeLength)
 			fmt.Printf("Decoded: %s\n", message)
@@ -61,9 +73,6 @@ func exit(message string) {
 
 func getImage(imagePath *string) image.Image {
 	// assert that "image" exists
-	if len(*imagePath) == 0 {
-		log.Fatal("provide an input --image")
-	}
 	if _, err := os.Stat(filepath.Clean(*imagePath)); err != nil {
 		log.Fatal(err)
 	}
