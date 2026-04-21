@@ -13,47 +13,6 @@ import (
 	"path/filepath"
 )
 
-func invert(src image.Image) *image.RGBA {
-	bounds := src.Bounds()
-	rgba := image.NewRGBA(bounds)
-	draw.Draw(rgba, bounds, src, bounds.Min, draw.Src)
-
-	// iterate pixels (Stride = number of bytes per row)
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			// r,g,b,a := img.At(x, y).RGBA()
-			i := (y-bounds.Min.Y)*rgba.Stride + (x-bounds.Min.X)*4
-			// invert
-			rgba.Pix[i+0] = 255 - rgba.Pix[i+0]
-			rgba.Pix[i+1] = 255 - rgba.Pix[i+1]
-			rgba.Pix[i+2] = 255 - rgba.Pix[i+2]
-			// rgba.Pix[i+3] = 1  // alpha
-		}
-	}
-	return rgba
-	// if rgba, ok := img.(*image.RGBA); ok {
-	// 	for i := 0; i < len(rgba.Pix); i += 4 {
-	// 		r := rgba.Pix[i]
-	// 		g := rgba.Pix[i+1]
-	// 		b := rgba.Pix[i+2]
-	// 		a := rgba.Pix[i+3]
-	// 		rgba.Pix[i] = 0xff - r
-	// 		rgba.Pix[i+1] = 0xff - g
-	// 		rgba.Pix[i+2] = 0xff - b
-	// 		rgba.Pix[i+3] = a
-	// 	}
-	// }
-}
-
-// func CLIUsage() {
-// 	fmt.Printf("Usage: %s command [OPTIONS]\n", os.Args[0])
-// 	fmt.Println("\nWhere command is one of:")
-// 	fmt.Println("\tencode (use with --message)")
-// 	fmt.Println("\tdecode")
-// 	fmt.Println()
-// 	flag.PrintDefaults()
-// }
-
 
 
 func main() {
@@ -85,13 +44,19 @@ func main() {
 			fmt.Printf("Decoded: %s\n", message)
 
 		default:
-			flag.Usage()
-			os.Exit(0)
+			exit("Usage: go-steghide encode|decode [OPTIONS]\n")
 		}
+	} else {
+		exit("Usage: go-steghide encode|decode [OPTIONS]\n")
 	}
 
 	// make a new RGBA image object with a writable .Pix slice
 	// rgba := invert(src)
+}
+
+func exit(message string) {
+	fmt.Println(message)
+	os.Exit(0)
 }
 
 func getImage(imagePath *string) image.Image {
